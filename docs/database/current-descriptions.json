@@ -1,0 +1,477 @@
+{
+  "tbl_department": {
+    "label": "Phòng ban",
+    "group": "Tổ chức và nhân sự",
+    "purpose": "Danh mục phòng ban; được tham chiếu bởi nhân viên, chức danh và ứng viên.",
+    "source": "hrm-backend/src/main/java/hrm/model/Department.java",
+    "columns": {
+      "code": "Mã phòng ban duy nhất.",
+      "name": "Tên phòng ban.",
+      "description": "Mô tả phòng ban."
+    },
+    "enumNotes": []
+  },
+  "tbl_position": {
+    "label": "Chức danh",
+    "group": "Tổ chức và nhân sự",
+    "purpose": "Danh mục chức danh/vị trí công việc, có thể thuộc một phòng ban.",
+    "source": "hrm-backend/src/main/java/hrm/model/Position.java",
+    "columns": {
+      "code": "Mã chức danh duy nhất.",
+      "name": "Tên chức danh.",
+      "description": "Mô tả chức danh.",
+      "department_id": "Phòng ban gắn với chức danh; tham chiếu tbl_department."
+    },
+    "enumNotes": []
+  },
+  "tbl_staff": {
+    "label": "Hồ sơ nhân viên",
+    "group": "Tổ chức và nhân sự",
+    "purpose": "Hồ sơ nhân sự trung tâm, chứa thông tin cá nhân, tổ chức, giấy tờ, ngân hàng và định mức phép.",
+    "source": "hrm-backend/src/main/java/hrm/model/Staff.java",
+    "columns": {
+      "staff_code": "Mã nhân viên duy nhất.",
+      "display_name": "Họ tên hiển thị của nhân viên.",
+      "email": "Email cá nhân/liên hệ.",
+      "phone_number": "Số điện thoại liên hệ.",
+      "gender": "Giới tính; lưu chuỗi.",
+      "working_status": "Trạng thái làm việc; cột chuỗi, giao diện dùng các mã 1–8.",
+      "birth_date": "Ngày sinh.",
+      "id_number": "Số giấy tờ định danh của nhân viên.",
+      "start_date": "Ngày bắt đầu làm việc.",
+      "department_id": "Phòng ban của nhân viên; tham chiếu tbl_department.",
+      "position_id": "Chức danh của nhân viên; tham chiếu tbl_position.",
+      "current_address": "Địa chỉ hiện tại (trường riêng với current_residence).",
+      "social_insurance_code": "Mã số bảo hiểm xã hội.",
+      "avatar_url": "Đường dẫn/URL ảnh đại diện.",
+      "birth_place": "Nơi sinh.",
+      "nationality": "Quốc tịch.",
+      "ethnics": "Dân tộc.",
+      "religion": "Tôn giáo.",
+      "education_degree": "Trình độ học vấn.",
+      "province": "Tỉnh/thành phố theo thông tin địa chỉ.",
+      "commune": "Xã/phường theo thông tin địa chỉ.",
+      "permanent_residence": "Địa chỉ thường trú.",
+      "current_residence": "Địa chỉ nơi ở hiện nay (trường riêng với current_address).",
+      "id_number_issue_date": "Ngày cấp giấy tờ định danh.",
+      "id_number_issue_by": "Cơ quan/nơi cấp giấy tờ định danh.",
+      "company_email": "Email công ty.",
+      "tax_code": "Mã số thuế cá nhân.",
+      "health_insurance_number": "Số thẻ bảo hiểm y tế.",
+      "bank_name": "Tên ngân hàng.",
+      "bank_account_number": "Số tài khoản ngân hàng.",
+      "bank_account_name": "Tên chủ tài khoản ngân hàng.",
+      "bank_bin": "Mã BIN ngân hàng dùng trong chức năng tạo QR chuyển khoản.",
+      "annual_leave": "Định mức ngày phép năm; số đã dùng/còn lại được tính từ đơn nghỉ phép."
+    },
+    "enumNotes": [
+      "gender là chuỗi, giao diện quy ước MALE (nam), FEMALE (nữ), OTHER (khác); không khai báo enum JPA.",
+      "working_status là chuỗi: giao diện quy ước 1=Chờ nhận việc, 2=Tạm dừng công việc, 3=Nghỉ chế độ, 4=Không nhận việc, 5=Đã nghỉ việc, 6=Nghỉ việc đi làm lại, 7=Đang làm việc, 8=Nghỉ không lương. CandidateServiceImpl hiện gán 'Thử việc' khi chuyển ứng viên thành nhân viên, khác bộ mã giao diện.",
+      "annual_leave được khởi tạo 12.0 trong Java; đây không phải SQL DEFAULT và không khẳng định định mức pháp luật."
+    ]
+  },
+  "tbl_user": {
+    "label": "Tài khoản đăng nhập",
+    "group": "Tài khoản và phân quyền",
+    "purpose": "Tài khoản đăng nhập và trạng thái kích hoạt; có thể gắn với một hồ sơ nhân viên.",
+    "source": "hrm-backend/src/main/java/hrm/model/User.java",
+    "columns": {
+      "username": "Tên đăng nhập duy nhất.",
+      "password": "Giá trị băm mật khẩu; luồng lưu tài khoản sử dụng BCrypt.",
+      "active": "Cờ kích hoạt; UserDetails dùng để xác định tài khoản được phép đăng nhập.",
+      "staff_id": "Hồ sơ nhân viên gắn với tài khoản; quan hệ một-một trong JPA."
+    },
+    "enumNotes": [
+      "active được khởi tạo true trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_role": {
+    "label": "Vai trò",
+    "group": "Tài khoản và phân quyền",
+    "purpose": "Danh mục vai trò phân quyền dùng bởi Spring Security.",
+    "source": "hrm-backend/src/main/java/hrm/model/Role.java",
+    "columns": {
+      "name": "Tên quyền/vai trò duy nhất được đưa vào GrantedAuthority.",
+      "description": "Mô tả vai trò."
+    },
+    "enumNotes": [
+      "name là chuỗi, các vai trò khai báo ở RoleType: ROLE_ADMIN, HR_MANAGER, HR_EMPLOYEE, HR_RECRUITMENT, HR_COMPENSATION_BENEFIT, HR_TIMEKEEPING_MANAGER. Role.name không dùng @Enumerated."
+    ]
+  },
+  "tbl_user_role": {
+    "label": "Gán vai trò tài khoản",
+    "group": "Tài khoản và phân quyền",
+    "purpose": "Bảng liên kết nhiều-nhiều giữa tài khoản và vai trò, có UUID và thông tin kiểm toán riêng.",
+    "source": "hrm-backend/src/main/java/hrm/model/UserRole.java",
+    "columns": {
+      "user_id": "Tài khoản được gán quyền; tham chiếu tbl_user.",
+      "role_id": "Vai trò được gán; tham chiếu tbl_role."
+    },
+    "enumNotes": []
+  },
+  "tbl_recruitment": {
+    "label": "Đợt tuyển dụng",
+    "group": "Tuyển dụng",
+    "purpose": "Đợt/nhu cầu tuyển dụng và nhân viên phụ trách duyệt CV.",
+    "source": "hrm-backend/src/main/java/hrm/model/Recruitment.java",
+    "columns": {
+      "code": "Mã đợt tuyển dụng.",
+      "name": "Tên đợt tuyển dụng.",
+      "description": "Nội dung/mô tả tuyển dụng.",
+      "status": "Trạng thái tuyển dụng, lưu số thứ tự enum (ORDINAL).",
+      "person_approve_cv": "Nhân viên phụ trách duyệt CV; tham chiếu tbl_staff."
+    },
+    "enumNotes": [
+      "status dùng EnumType.ORDINAL: 0=DRAFT (nháp), 1=RECRUITING (đang tuyển), 2=PAUSED (tạm dừng), 3=CLOSED (đã đóng). API sử dụng RecruitmentStatus.value; hiện các value trùng ordinal, nhưng JPA lưu theo thứ tự khai báo enum, không theo value."
+    ]
+  },
+  "tbl_candidate": {
+    "label": "Ứng viên",
+    "group": "Tuyển dụng",
+    "purpose": "Hồ sơ ứng viên, CV, đợt tuyển dụng, vị trí ứng tuyển và tiến trình xử lý.",
+    "source": "hrm-backend/src/main/java/hrm/model/Candidate.java",
+    "columns": {
+      "candidate_code": "Mã ứng viên.",
+      "display_name": "Họ tên ứng viên.",
+      "gender": "Giới tính; lưu chuỗi.",
+      "birth_date": "Ngày sinh ứng viên.",
+      "email": "Email liên hệ.",
+      "phone_number": "Số điện thoại liên hệ.",
+      "address": "Địa chỉ ứng viên.",
+      "cv_file_url": "Đường dẫn/URL tệp CV.",
+      "status": "Trạng thái xử lý ứng viên; lưu tên enum.",
+      "recruitment_id": "Đợt tuyển dụng của ứng viên; tham chiếu tbl_recruitment.",
+      "department_id": "Phòng ban ứng tuyển; tham chiếu tbl_department.",
+      "position_id": "Chức danh ứng tuyển; tham chiếu tbl_position.",
+      "note": "Ghi chú hồ sơ ứng viên."
+    },
+    "enumNotes": [
+      "status dùng EnumType.STRING: SCREENING (sàng lọc), INTERVIEW (phỏng vấn), QUALIFIED (đạt), WAITING (chờ), ONBOARDED (đã nhận việc), REJECTED (loại)."
+    ]
+  },
+  "tbl_shift_work": {
+    "label": "Ca làm việc",
+    "group": "Chấm công và nghỉ phép",
+    "purpose": "Danh mục ca và khung giờ làm việc; cung cấp hệ số công để tổng hợp chấm công.",
+    "source": "hrm-backend/src/main/java/hrm/model/ShiftWork.java",
+    "columns": {
+      "code": "Mã ca duy nhất; mã ca được dịch vụ dùng để nhận diện ca cả ngày/tăng ca.",
+      "name": "Tên ca.",
+      "start_time": "Giờ bắt đầu ca.",
+      "end_time": "Giờ kết thúc ca.",
+      "work_ratio": "Hệ số công quy đổi của ca, ví dụ 0.5 cho nửa ngày và 1.0 cho cả ngày.",
+      "description": "Mô tả ca."
+    },
+    "enumNotes": [
+      "TimesheetServiceImpl nhận diện ca OT qua mã chứa OT, TANG_CA hoặc OVERTIME; quy tắc này thuộc ứng dụng, không phải enum DB."
+    ]
+  },
+  "tbl_check_in_out_record": {
+    "label": "Lượt chấm công vào/ra",
+    "group": "Chấm công và nghỉ phép",
+    "purpose": "Nhật ký từng lượt check-in/check-out với thời điểm, thiết bị, vị trí và ảnh; là đầu vào tổng hợp bảng công.",
+    "source": "hrm-backend/src/main/java/hrm/model/CheckInOutRecord.java",
+    "columns": {
+      "staff_id": "Nhân viên thực hiện chấm công; tham chiếu tbl_staff.",
+      "record_time": "Thời điểm ghi nhận lượt vào/ra.",
+      "ip_address": "Địa chỉ IP tại thời điểm chấm công.",
+      "latitude": "Vĩ độ vị trí được gửi khi chấm công.",
+      "longitude": "Kinh độ vị trí được gửi khi chấm công.",
+      "device_type": "Thông tin/loại thiết bị chấm công.",
+      "photo_url": "Đường dẫn/URL ảnh của lượt chấm công.",
+      "record_type": "Loại lượt chấm công; lưu tên enum.",
+      "shift_id": "Ca làm việc gắn với lượt chấm công; tham chiếu tbl_shift_work."
+    },
+    "enumNotes": [
+      "record_type dùng EnumType.STRING: CHECK_IN (vào), CHECK_OUT (ra)."
+    ]
+  },
+  "tbl_timesheet": {
+    "label": "Bảng công ngày",
+    "group": "Chấm công và nghỉ phép",
+    "purpose": "Tổng hợp công của một nhân viên trong một ngày; dữ liệu đã duyệt được sử dụng khi tính lương.",
+    "source": "hrm-backend/src/main/java/hrm/model/Timesheet.java",
+    "columns": {
+      "staff_id": "Nhân viên có bảng công; tham chiếu tbl_staff.",
+      "working_date": "Ngày công; tổ hợp staff_id và working_date là duy nhất.",
+      "total_work_ratio": "Tổng công quy đổi trong ngày, tổng hợp từ chi tiết ca và xử lý nghỉ phép.",
+      "standard_hours": "Tổng giờ công thông thường do dịch vụ tính; có xử lý riêng đối với nghỉ phép.",
+      "overtime_hours": "Tổng giờ tăng ca do dịch vụ tính.",
+      "status": "Trạng thái duyệt bảng công; lưu tên enum.",
+      "note": "Ghi chú bảng công ngày."
+    },
+    "enumNotes": [
+      "status dùng EnumType.STRING: DRAFT (nháp), SUBMITTED (đã gửi), APPROVED (đã duyệt), REJECTED (từ chối).",
+      "Java khởi tạo status=DRAFT và các tổng số=0.0; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_timesheet_detail": {
+    "label": "Chi tiết công theo ca",
+    "group": "Chấm công và nghỉ phép",
+    "purpose": "Chi tiết ca trong bảng công ngày, gồm thời điểm vào/ra, chứng cứ chấm công và công quy đổi.",
+    "source": "hrm-backend/src/main/java/hrm/model/TimesheetDetail.java",
+    "columns": {
+      "timesheet_id": "Bảng công ngày chứa chi tiết; tham chiếu tbl_timesheet.",
+      "shift_id": "Ca làm việc tương ứng; tham chiếu tbl_shift_work.",
+      "check_in_time": "Thời điểm vào ca dùng trong bảng công.",
+      "check_out_time": "Thời điểm ra ca dùng trong bảng công.",
+      "ip_check_in": "IP của lượt vào ca.",
+      "photo_check_in_url": "Đường dẫn/URL ảnh vào ca.",
+      "ip_check_out": "IP của lượt ra ca.",
+      "photo_check_out_url": "Đường dẫn/URL ảnh ra ca.",
+      "late_minutes": "Số phút đi muộn so với giờ bắt đầu ca.",
+      "early_minutes": "Số phút về sớm so với giờ kết thúc ca.",
+      "work_ratio": "Công quy đổi được ghi nhận cho chi tiết ca."
+    },
+    "enumNotes": [
+      "Java khởi tạo late_minutes=0, early_minutes=0, work_ratio=0.0; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_leave_request": {
+    "label": "Đơn nghỉ phép",
+    "group": "Chấm công và nghỉ phép",
+    "purpose": "Đơn nghỉ của nhân viên, khoảng ngày nghỉ, người duyệt và kết quả phê duyệt; ảnh hưởng phép còn lại và tổng hợp công.",
+    "source": "hrm-backend/src/main/java/hrm/model/LeaveRequest.java",
+    "columns": {
+      "request_staff_id": "Nhân viên xin nghỉ; tham chiếu tbl_staff.",
+      "approval_staff_id": "Nhân viên duyệt/từ chối đơn; tham chiếu tbl_staff.",
+      "leave_type": "Loại nghỉ; lưu tên enum.",
+      "from_date": "Ngày bắt đầu nghỉ.",
+      "to_date": "Ngày kết thúc nghỉ, tính cả ngày này.",
+      "request_date": "Ngày lập/gửi đơn nghỉ.",
+      "request_reason": "Lý do xin nghỉ.",
+      "approval_status": "Trạng thái phê duyệt; lưu tên enum.",
+      "total_days": "Tổng ngày nghỉ do dịch vụ tính, loại thứ Bảy/Chủ nhật; nghỉ nửa ngày trong một ngày tính 0.5.",
+      "half_day_leave": "Cờ nghỉ nửa ngày; dịch vụ yêu cầu ngày bắt đầu và kết thúc giống nhau.",
+      "shift_work_id": "Ca nghỉ được chọn, dùng khi xử lý nghỉ theo ca; tham chiếu tbl_shift_work.",
+      "reject_reason": "Lý do từ chối đơn."
+    },
+    "enumNotes": [
+      "leave_type dùng EnumType.STRING: ANNUAL (phép năm), UNPAID (không lương).",
+      "approval_status dùng EnumType.STRING: PENDING (chờ duyệt), APPROVED (đã duyệt), REJECTED (từ chối).",
+      "Java khởi tạo approval_status=PENDING, total_days=0.0, half_day_leave=false; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_period": {
+    "label": "Kỳ công/lương",
+    "group": "Tiền lương",
+    "purpose": "Định nghĩa kỳ tính lương theo tháng/năm, khoảng thời gian và số công chuẩn.",
+    "source": "hrm-backend/src/main/java/hrm/model/Period.java",
+    "columns": {
+      "code": "Mã kỳ.",
+      "name": "Tên kỳ công/lương.",
+      "month": "Tháng của kỳ.",
+      "year": "Năm của kỳ.",
+      "from_date": "Ngày bắt đầu kỳ.",
+      "to_date": "Ngày kết thúc kỳ.",
+      "standard_work_days": "Số ngày công chuẩn làm mẫu số khi tính lương theo công.",
+      "description": "Mô tả kỳ."
+    },
+    "enumNotes": []
+  },
+  "tbl_salary_item": {
+    "label": "Danh mục khoản lương",
+    "group": "Tiền lương",
+    "purpose": "Định nghĩa từng khoản thu nhập/khấu trừ và cách tính; mức áp dụng cho từng nhân viên nằm ở tbl_staff_salary_item.",
+    "source": "hrm-backend/src/main/java/hrm/model/SalaryItem.java",
+    "columns": {
+      "code": "Mã khoản lương; một số mã được dịch vụ nhận diện riêng để tính OT.",
+      "name": "Tên khoản lương.",
+      "calculation_type": "Cách tính khoản lương; lưu tên enum.",
+      "type": "Loại khoản: thu nhập hoặc khấu trừ; lưu tên enum.",
+      "description": "Mô tả khoản lương."
+    },
+    "enumNotes": [
+      "type dùng EnumType.STRING: INCOME (thu nhập), DEDUCTION (khấu trừ).",
+      "calculation_type dùng EnumType.STRING: FIXED (giữ nguyên amount), BY_STANDARD_DAYS (amount / công chuẩn × công được duyệt), DAILY_MULTIPLIED (amount × công được duyệt).",
+      "Dịch vụ có nhánh tính OT riêng cho mã OT, LUONG_OT, OVERTIME hoặc mã chứa TANG_CA; đây là công thức của mã nguồn hiện tại, không phải quy định DB."
+    ]
+  },
+  "tbl_staff_salary_item": {
+    "label": "Mức lương theo nhân viên",
+    "group": "Tiền lương",
+    "purpose": "Gán khoản lương và giá trị cơ sở cho mỗi nhân viên.",
+    "source": "hrm-backend/src/main/java/hrm/model/StaffSalaryItem.java",
+    "columns": {
+      "staff_id": "Nhân viên áp dụng khoản lương; tham chiếu tbl_staff.",
+      "salary_item_id": "Khoản lương được áp dụng; tham chiếu tbl_salary_item.",
+      "amount": "Mức tiền/đơn giá cơ sở theo nhân viên, dùng cùng cách tính của khoản lương."
+    },
+    "enumNotes": [
+      "amount được khởi tạo 0.0 trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_payroll": {
+    "label": "Bảng lương",
+    "group": "Tiền lương",
+    "purpose": "Bảng lương tổng theo kỳ, chứa các phiếu lương nhân viên và trạng thái xử lý.",
+    "source": "hrm-backend/src/main/java/hrm/model/Payroll.java",
+    "columns": {
+      "code": "Mã bảng lương.",
+      "name": "Tên bảng lương.",
+      "period_id": "Kỳ tính lương; tham chiếu tbl_period.",
+      "status": "Trạng thái bảng lương; lưu tên enum.",
+      "description": "Mô tả bảng lương."
+    },
+    "enumNotes": [
+      "status dùng EnumType.STRING: DRAFT (nháp), CONFIRMED (đã xác nhận), PAID (đã trả).",
+      "status được khởi tạo DRAFT trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_payslip": {
+    "label": "Phiếu lương nhân viên",
+    "group": "Tiền lương",
+    "purpose": "Kết quả tính lương của một nhân viên trong bảng lương, gồm tổng công, thu nhập, khấu trừ và thực nhận.",
+    "source": "hrm-backend/src/main/java/hrm/model/Payslip.java",
+    "columns": {
+      "payroll_id": "Bảng lương chứa phiếu; tham chiếu tbl_payroll.",
+      "staff_id": "Nhân viên nhận lương; tham chiếu tbl_staff.",
+      "total_work_days": "Tổng công quy đổi từ các bảng công APPROVED trong khoảng kỳ.",
+      "total_ot_hours": "Tổng giờ tăng ca từ các bảng công APPROVED trong khoảng kỳ.",
+      "total_income": "Tổng calculated_value của các khoản INCOME.",
+      "total_deduction": "Tổng calculated_value của các khoản DEDUCTION.",
+      "net_salary": "Lương thực nhận: total_income − total_deduction, làm tròn 2 chữ số thập phân trong dịch vụ.",
+      "paid_status": "Trạng thái chi trả của phiếu; lưu tên enum.",
+      "note": "Ghi chú phiếu lương."
+    },
+    "enumNotes": [
+      "paid_status dùng EnumType.STRING: PAID (đã trả), UNPAID (chưa trả).",
+      "Java khởi tạo paid_status=UNPAID và các tổng số=0.0; không phải SQL DEFAULT.",
+      "Các giá trị tiền trong entity dùng Double; cấu trúc DB thực tế cần đọc tại bảng kiểu dữ liệu, không suy ra là DECIMAL từ tên cột."
+    ]
+  },
+  "tbl_payslip_item": {
+    "label": "Chi tiết khoản trong phiếu lương",
+    "group": "Tiền lương",
+    "purpose": "Kết quả tính từng khoản lương trong phiếu, lưu tên và mức cơ sở tại thời điểm tính.",
+    "source": "hrm-backend/src/main/java/hrm/model/PayslipItem.java",
+    "columns": {
+      "payslip_id": "Phiếu lương chứa dòng chi tiết; tham chiếu tbl_payslip.",
+      "salary_item_id": "Khoản lương nguồn; tham chiếu tbl_salary_item.",
+      "name": "Tên khoản lương được chép vào khi tính phiếu.",
+      "calculated_value": "Thành tiền sau công thức tính, làm tròn 2 chữ số thập phân trong dịch vụ.",
+      "amount": "Giá trị cơ sở được chép lúc tính; với OT có thể là lương cơ bản được dịch vụ chọn làm căn cứ."
+    },
+    "enumNotes": [
+      "amount và calculated_value được khởi tạo 0.0 trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_project": {
+    "label": "Dự án",
+    "group": "Dự án và công việc",
+    "purpose": "Thông tin dự án, ngày thực hiện và cờ hoàn thành; chứa thành viên, hoạt động và các trạng thái Kanban.",
+    "source": "hrm-backend/src/main/java/hrm/model/Project.java",
+    "columns": {
+      "name": "Tên dự án.",
+      "code": "Mã dự án; dùng làm tiền tố mã công việc khi có.",
+      "description": "Mô tả dự án.",
+      "start_date": "Ngày bắt đầu dự án.",
+      "end_date": "Ngày kết thúc dự án.",
+      "is_finished": "Cờ đánh dấu dự án đã hoàn thành."
+    },
+    "enumNotes": [
+      "is_finished được khởi tạo false trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_project_staff": {
+    "label": "Thành viên dự án",
+    "group": "Dự án và công việc",
+    "purpose": "Liên kết nhân viên tham gia dự án cùng vai trò và ngày tham gia.",
+    "source": "hrm-backend/src/main/java/hrm/model/ProjectStaff.java",
+    "columns": {
+      "project_id": "Dự án tham gia; tham chiếu tbl_project.",
+      "staff_id": "Nhân viên tham gia; tham chiếu tbl_staff.",
+      "project_role": "Vai trò trong dự án; lưu tên enum.",
+      "joined_date": "Ngày tham gia dự án."
+    },
+    "enumNotes": [
+      "project_role dùng EnumType.STRING: MANAGER (quản lý dự án), MEMBER (người thực hiện)."
+    ]
+  },
+  "tbl_project_activity": {
+    "label": "Hoạt động/giai đoạn dự án",
+    "group": "Dự án và công việc",
+    "purpose": "Phân nhóm hoạt động/giai đoạn trong dự án để gắn công việc, có lịch và thứ tự hiển thị.",
+    "source": "hrm-backend/src/main/java/hrm/model/ProjectActivity.java",
+    "columns": {
+      "name": "Tên hoạt động/giai đoạn.",
+      "code": "Mã hoạt động/giai đoạn.",
+      "description": "Mô tả hoạt động/giai đoạn.",
+      "project_id": "Dự án sở hữu hoạt động; tham chiếu tbl_project.",
+      "start_time": "Thời điểm bắt đầu hoạt động.",
+      "end_time": "Thời điểm kết thúc hoạt động.",
+      "display_order": "Thứ tự hiển thị trong dự án."
+    },
+    "enumNotes": [
+      "display_order được khởi tạo 0 trong Java; không phải SQL DEFAULT."
+    ]
+  },
+  "tbl_project_working_status": {
+    "label": "Trạng thái công việc của dự án",
+    "group": "Dự án và công việc",
+    "purpose": "Danh mục trạng thái/cột Kanban tùy từng dự án, có màu sắc và thứ tự hiển thị.",
+    "source": "hrm-backend/src/main/java/hrm/model/ProjectWorkingStatus.java",
+    "columns": {
+      "project_id": "Dự án sở hữu trạng thái; tham chiếu tbl_project.",
+      "name": "Tên trạng thái.",
+      "code": "Mã trạng thái.",
+      "description": "Mô tả trạng thái.",
+      "display_order": "Thứ tự cột Kanban.",
+      "color": "Mã màu hiển thị của trạng thái (comment model quy ước màu hex)."
+    },
+    "enumNotes": [
+      "Trạng thái công việc được lưu thành bản ghi danh mục của dự án, không phải Java enum cố định."
+    ]
+  },
+  "tbl_task": {
+    "label": "Công việc",
+    "group": "Dự án và công việc",
+    "purpose": "Công việc trong dự án, có hoạt động, người phụ trách, trạng thái Kanban, lịch và độ ưu tiên.",
+    "source": "hrm-backend/src/main/java/hrm/model/Task.java",
+    "columns": {
+      "name": "Tên/nội dung ngắn của công việc.",
+      "code": "Mã công việc do dịch vụ sinh theo dự án.",
+      "description": "Mô tả chi tiết công việc.",
+      "priority": "Độ ưu tiên dạng số nguyên: 1=Thấp, 2=Trung bình, 3=Cao, 4=Khẩn cấp theo model.",
+      "start_time": "Thời điểm bắt đầu công việc.",
+      "end_time": "Thời điểm kết thúc/hạn công việc.",
+      "estimate_hour": "Số giờ ước tính cần để thực hiện.",
+      "project_id": "Dự án chứa công việc; tham chiếu tbl_project.",
+      "activity_id": "Hoạt động/giai đoạn gắn với công việc; tham chiếu tbl_project_activity.",
+      "status_id": "Trạng thái/cột Kanban; tham chiếu tbl_project_working_status.",
+      "assignee_id": "Nhân viên phụ trách công việc; tham chiếu tbl_staff."
+    },
+    "enumNotes": [
+      "priority là Integer với quy ước 1–4 trong comment của model, không dùng Java enum."
+    ]
+  },
+  "tbl_task_attachment": {
+    "label": "Tệp đính kèm công việc",
+    "group": "Dự án và công việc",
+    "purpose": "Thông tin tệp gắn với công việc; DB lưu metadata/đường dẫn thay cho nội dung nhị phân tệp.",
+    "source": "hrm-backend/src/main/java/hrm/model/TaskAttachment.java",
+    "columns": {
+      "name": "Tên tệp đính kèm.",
+      "size": "Kích thước tệp tính bằng byte trong luồng upload.",
+      "file_path": "Đường dẫn tệp được bộ điều khiển lưu.",
+      "task_id": "Công việc sở hữu tệp; tham chiếu tbl_task."
+    },
+    "enumNotes": []
+  },
+  "tbl_task_history": {
+    "label": "Lịch sử và bình luận công việc",
+    "group": "Dự án và công việc",
+    "purpose": "Ghi sự kiện thay đổi hoặc bình luận trên công việc cùng nhân viên thực hiện.",
+    "source": "hrm-backend/src/main/java/hrm/model/TaskHistory.java",
+    "columns": {
+      "task_id": "Công việc liên quan; tham chiếu tbl_task.",
+      "modifier_id": "Nhân viên thao tác/viết bình luận; tham chiếu tbl_staff.",
+      "event": "Nội dung sự kiện thay đổi; các lời gọi TaskServiceImpl hiện ghi văn bản.",
+      "comment": "Nội dung bình luận công việc."
+    },
+    "enumNotes": [
+      "event là TEXT. Comment trong model nhắc JSON, nhưng TaskServiceImpl hiện gọi logEvent bằng chuỗi văn bản; không coi cột này là JSON/JSONB."
+    ]
+  }
+}
+

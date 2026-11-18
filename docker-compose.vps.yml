@@ -1,0 +1,27 @@
+# Bổ sung cho VPS: thêm Caddy làm cổng HTTPS (tự xin và gia hạn chứng chỉ Let's Encrypt).
+#   docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d --build
+# Cần SITE_ADDRESS trong .env, ví dụ 203-0-113-10.sslip.io hoặc tên miền riêng đã trỏ về IP VPS.
+# Chỉ Caddy mở cổng 80/443; frontend (Nginx) không còn mở cổng trực tiếp ra ngoài.
+
+services:
+  frontend:
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?Hãy đặt SITE_ADDRESS (tên miền hoặc <IP>.sslip.io) trong file .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

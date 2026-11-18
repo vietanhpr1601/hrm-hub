@@ -1,0 +1,5 @@
+# Caddy nhận HTTPS cho SITE_ADDRESS và chuyển mọi request vào container frontend (Nginx).
+{$SITE_ADDRESS} {
+	encode gzip
+	reverse_proxy frontend:80
+}

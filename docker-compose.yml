@@ -1,0 +1,71 @@
+# Chạy toàn bộ HRM Hub bằng Docker: PostgreSQL + backend Spring Boot + frontend React (Nginx).
+#   1. copy .env.docker.example .env   (rồi sửa mật khẩu trong .env)
+#   2. docker compose up -d --build
+#   3. mở http://localhost (hoặc http://<IP VPS>)
+# Chỉ cổng web (HTTP_PORT) mở ra ngoài; backend và CSDL chỉ nói chuyện trong mạng nội bộ của compose.
+
+name: hrm-hub
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hrm
+      POSTGRES_USER: ${DB_USER:-hrm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Hãy đặt DB_PASSWORD trong file .env}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d hrm"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./hrm-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrm
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-hrm}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Hãy đặt JWT_SECRET (chuỗi ngẫu nhiên dài) trong file .env}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Hãy đặt ADMIN_PASSWORD trong file .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@hrm.com}
+      # Email phiếu lương (Gmail SMTP). Để PAYROLL_MAIL_ENABLED=false nếu chưa dùng.
+      PAYROLL_MAIL_ENABLED: ${PAYROLL_MAIL_ENABLED:-false}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      # Chatbot AI (không bắt buộc; thiếu khoá thì chatbot trả lời bằng tra cứu đơn giản)
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      # Vị trí văn phòng để tính khoảng cách khi chấm công (không bắt buộc)
+      ATTENDANCE_WORKPLACE_NAME: ${ATTENDANCE_WORKPLACE_NAME:-}
+      ATTENDANCE_WORKPLACE_LATITUDE: ${ATTENDANCE_WORKPLACE_LATITUDE:-}
+      ATTENDANCE_WORKPLACE_LONGITUDE: ${ATTENDANCE_WORKPLACE_LONGITUDE:-}
+      TZ: Asia/Ho_Chi_Minh
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Ho_Chi_Minh -XX:MaxRAMPercentage=70
+    volumes:
+      # Tệp đính kèm công việc (uploads/tasks) được giữ lại khi tạo lại container
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./hrm-frontend
+      args:
+        VITE_API_ENDPOINT: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${HTTP_PORT:-80}:80"
+
+volumes:
+  db-data:
+  uploads:

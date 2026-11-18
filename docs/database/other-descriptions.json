@@ -1,0 +1,333 @@
+{
+  "attendances": {
+    "label": "Chấm công theo ngày",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Chấm công và nghỉ phép",
+    "purpose": "Suy luận từ cấu trúc: lưu giờ vào/ra, thông tin thiết bị/vị trí và kết quả duyệt chấm công của nhân viên. UNIQUE(employee_id, attendance_date) giới hạn một bản ghi cho mỗi nhân viên/ngày.",
+    "source": "Metadata public.attendances trong schema.json. Không tìm thấy ánh xạ JPA hoặc SQL native cho bảng này trong mã backend hiện tại; ý nghĩa nghiệp vụ suy luận từ tên cột và ràng buộc DB.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "approved_at": "Thời điểm duyệt bản ghi chấm công.",
+      "attendance_date": "Ngày chấm công; kết hợp employee_id tạo khóa duy nhất.",
+      "check_in_ip": "Địa chỉ IP ghi nhận khi vào ca.",
+      "check_in_latitude": "Vĩ độ ghi nhận khi vào ca.",
+      "check_in_longitude": "Kinh độ ghi nhận khi vào ca.",
+      "check_in_photo_url": "Đường dẫn ảnh khi vào ca; DB không quy định nơi lưu ảnh.",
+      "check_in_time": "Thời điểm vào ca.",
+      "check_out_ip": "Địa chỉ IP ghi nhận khi ra ca.",
+      "check_out_latitude": "Vĩ độ ghi nhận khi ra ca.",
+      "check_out_longitude": "Kinh độ ghi nhận khi ra ca.",
+      "check_out_photo_url": "Đường dẫn ảnh khi ra ca; DB không quy định nơi lưu ảnh.",
+      "check_out_time": "Thời điểm ra ca.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "note": "Ghi chú chấm công.",
+      "status": "Trạng thái duyệt chấm công, bị giới hạn bởi CHECK.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "approved_by": "FK tới users.id: tài khoản duyệt; có thể chưa có người duyệt.",
+      "employee_id": "FK bắt buộc tới employees.id: nhân viên được chấm công."
+    },
+    "enumNotes": ["DB CHECK status: PENDING (chờ duyệt), APPROVED (đã duyệt), REJECTED (từ chối)."]
+  },
+  "candidates": {
+    "label": "Ứng viên",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tuyển dụng",
+    "purpose": "Suy luận từ cấu trúc: hồ sơ ứng tuyển vào một tin tuyển dụng. Mỗi ứng viên tham chiếu một job_postings; bảng không có ràng buộc UNIQUE trên email.",
+    "source": "Metadata public.candidates trong schema.json. Entity Candidate hiện tại ánh xạ tbl_candidate; không tìm thấy SQL native truy cập candidates. Không thể dùng luồng Candidate hiện tại để khẳng định cách xử lý bảng này.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "applied_at": "Thời điểm nộp hồ sơ ứng tuyển.",
+      "cv_url": "Đường dẫn CV; DB không quy định nơi lưu tệp.",
+      "email": "Email ứng viên.",
+      "full_name": "Họ tên ứng viên.",
+      "note": "Ghi chú về ứng viên hoặc quá trình tuyển dụng.",
+      "phone": "Số điện thoại ứng viên.",
+      "status": "Trạng thái hồ sơ ứng tuyển, bị giới hạn bởi CHECK.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "job_posting_id": "FK bắt buộc tới job_postings.id: tin tuyển dụng mà hồ sơ ứng tuyển."
+    },
+    "enumNotes": ["DB CHECK status: NEW (mới), SCREENING (sàng lọc), INTERVIEW (phỏng vấn), OFFERED (đã gửi đề nghị), HIRED (đã tuyển), REJECTED (từ chối). Không đồng nhất bộ trạng thái này với tbl_candidate."]
+  },
+  "departments": {
+    "label": "Phòng ban",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tổ chức và nhân sự",
+    "purpose": "Suy luận từ cấu trúc: danh mục phòng ban dùng bởi employees và job_postings. Là bảng riêng với tbl_department; không có FK nối hai bảng này.",
+    "source": "Metadata public.departments trong schema.json. Entity Department hiện tại ánh xạ tbl_department; không tìm thấy SQL native truy cập departments.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "code": "Mã phòng ban; UNIQUE trên toàn bảng, kể cả bản ghi có deleted=true.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột; cơ chế lọc của ứng dụng cho bảng này chưa được xác minh.",
+      "description": "Mô tả phòng ban.",
+      "name": "Tên phòng ban.",
+      "updated_at": "Thời điểm cập nhật gần nhất."
+    },
+    "enumNotes": []
+  },
+  "employees": {
+    "label": "Hồ sơ nhân viên",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tổ chức và nhân sự",
+    "purpose": "Suy luận từ cấu trúc: hồ sơ nhân viên liên kết phòng ban, chức danh và tài khoản. user_id có UNIQUE nên một tài khoản chỉ gắn tối đa một employee. Đây là mô hình riêng với tbl_staff.",
+    "source": "Metadata public.employees trong schema.json. Không tìm thấy entity JPA hoặc SQL native truy cập employees trong backend hiện tại; ý nghĩa suy luận từ cấu trúc.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "address": "Địa chỉ nhân viên.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "date_of_birth": "Ngày sinh.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột; cơ chế lọc của ứng dụng cho bảng này chưa được xác minh.",
+      "email": "Email nhân viên; không có UNIQUE trong snapshot.",
+      "employee_code": "Mã nhân viên duy nhất.",
+      "full_name": "Họ tên nhân viên.",
+      "gender": "Giới tính; snapshot không có CHECK quy định các giá trị hợp lệ.",
+      "hire_date": "Ngày bắt đầu làm việc.",
+      "phone": "Số điện thoại nhân viên.",
+      "status": "Trạng thái làm việc, bị giới hạn bởi CHECK.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "department_id": "FK tới departments.id: phòng ban của nhân viên.",
+      "position_id": "FK tới positions.id: chức danh/vị trí của nhân viên.",
+      "user_id": "FK tới users.id đồng thời có UNIQUE: tài khoản đăng nhập gắn với hồ sơ nhân viên."
+    },
+    "enumNotes": ["DB CHECK status: ACTIVE (đang làm việc), ON_LEAVE (đang nghỉ), RESIGNED (đã nghỉ việc)."]
+  },
+  "job_postings": {
+    "label": "Tin tuyển dụng",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tuyển dụng",
+    "purpose": "Suy luận từ cấu trúc: đợt/tin tuyển dụng cho một phòng ban và vị trí, có hạn nộp hồ sơ và số lượng cần tuyển. candidates tham chiếu bảng này; mô hình riêng với tbl_recruitment.",
+    "source": "Metadata public.job_postings trong schema.json. Không tìm thấy entity JPA hoặc SQL native truy cập bảng này trong backend hiện tại; ý nghĩa suy luận từ cấu trúc.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "code": "Mã tin tuyển dụng duy nhất.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deadline": "Hạn nộp hồ sơ ứng tuyển.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột.",
+      "description": "Nội dung mô tả công việc/tin tuyển dụng.",
+      "quantity": "Số lượng nhân sự cần tuyển; snapshot không có CHECK buộc số dương.",
+      "requirements": "Yêu cầu dành cho ứng viên.",
+      "status": "Trạng thái tin tuyển dụng, bị giới hạn bởi CHECK.",
+      "title": "Tiêu đề tin tuyển dụng.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "department_id": "FK tới departments.id: phòng ban tuyển dụng.",
+      "position_id": "FK tới positions.id: chức danh/vị trí tuyển dụng."
+    },
+    "enumNotes": ["DB CHECK status: DRAFT (bản nháp), OPEN (đang tuyển), CLOSED (đã đóng)."]
+  },
+  "leave_requests": {
+    "label": "Đơn xin nghỉ",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Chấm công và nghỉ phép",
+    "purpose": "Suy luận từ cấu trúc: đơn nghỉ của nhân viên, loại nghỉ, khoảng thời gian và thông tin duyệt. Là bảng riêng với tbl_leave_request.",
+    "source": "Metadata public.leave_requests trong schema.json. Entity LeaveRequest hiện tại ánh xạ tbl_leave_request; không tìm thấy SQL native truy cập leave_requests.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "actual_days": "Số ngày nghỉ thực tế/tính vào đơn; chưa xác minh công thức tính từ mã nguồn.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "end_date": "Ngày kết thúc đợt nghỉ.",
+      "leave_type": "Loại nghỉ phép, bị giới hạn bởi CHECK.",
+      "reason": "Lý do xin nghỉ.",
+      "review_note": "Ghi chú của người xét duyệt.",
+      "reviewed_at": "Thời điểm xét duyệt.",
+      "start_date": "Ngày bắt đầu đợt nghỉ.",
+      "status": "Trạng thái xét duyệt, bị giới hạn bởi CHECK.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "employee_id": "FK tới employees.id: nhân viên xin nghỉ.",
+      "reviewed_by": "FK tới users.id: tài khoản xét duyệt đơn nghỉ."
+    },
+    "enumNotes": ["DB CHECK leave_type: ANNUAL (nghỉ phép năm), SICK (nghỉ ốm), UNPAID (nghỉ không lương), OTHER (khác).", "DB CHECK status: PENDING (chờ duyệt), APPROVED (đã duyệt), REJECTED (từ chối)."]
+  },
+  "payroll_periods": {
+    "label": "Kỳ lương",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tiền lương",
+    "purpose": "Suy luận từ cấu trúc: kỳ tính lương theo tháng/năm. UNIQUE(payroll_year, payroll_month) bảo đảm mỗi tháng/năm chỉ có một kỳ. Mô hình riêng với tbl_period.",
+    "source": "Metadata public.payroll_periods trong schema.json. Không tìm thấy entity JPA hoặc SQL native truy cập bảng này trong backend hiện tại; ý nghĩa suy luận từ cấu trúc.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "closed": "Cờ kỳ lương đã đóng; DB không tự thực thi quy tắc khóa sửa lương qua cờ này.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "end_date": "Ngày kết thúc kỳ lương.",
+      "payroll_month": "Tháng tính lương; kết hợp payroll_year tạo khóa duy nhất, snapshot không có CHECK giới hạn 1–12.",
+      "name": "Tên kỳ lương.",
+      "start_date": "Ngày bắt đầu kỳ lương.",
+      "payroll_year": "Năm tính lương; kết hợp payroll_month tạo khóa duy nhất."
+    },
+    "enumNotes": []
+  },
+  "payrolls": {
+    "label": "Bảng lương từng nhân viên",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tiền lương",
+    "purpose": "Suy luận từ cấu trúc: tổng hợp các khoản thu nhập/khấu trừ của một nhân viên trong một kỳ. UNIQUE(employee_id, period_id) giới hạn một bản ghi mỗi nhân viên/kỳ. Khác mô hình tbl_payroll/tbl_payslip/tbl_payslip_item hiện tại.",
+    "source": "Metadata public.payrolls trong schema.json. Entity Payroll hiện tại ánh xạ tbl_payroll; không tìm thấy SQL native truy cập payrolls. Chưa xác minh đơn vị tiền tệ hoặc công thức lương của bảng này.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "allowance": "Tổng phụ cấp.",
+      "base_salary": "Lương cơ bản.",
+      "bonus": "Tiền thưởng.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deductions": "Các khoản khấu trừ; chưa xác minh có bao gồm thuế/bảo hiểm hay không.",
+      "gross_salary": "Tổng thu nhập trước khấu trừ theo tên cột; chưa xác minh công thức.",
+      "insurance": "Khoản bảo hiểm.",
+      "net_salary": "Lương thực nhận theo tên cột; chưa xác minh công thức.",
+      "note": "Ghi chú tính lương.",
+      "overtime_pay": "Tiền làm thêm giờ.",
+      "status": "Trạng thái xử lý lương, bị giới hạn bởi CHECK.",
+      "tax": "Khoản thuế.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "employee_id": "FK tới employees.id: nhân viên nhận lương; kết hợp period_id tạo khóa duy nhất.",
+      "period_id": "FK tới payroll_periods.id: kỳ lương; kết hợp employee_id tạo khóa duy nhất."
+    },
+    "enumNotes": ["DB CHECK status: DRAFT (bản nháp), FINALIZED (đã chốt), PAID (đã thanh toán)."]
+  },
+  "positions": {
+    "label": "Chức danh/vị trí",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tổ chức và nhân sự",
+    "purpose": "Suy luận từ cấu trúc: danh mục chức danh/vị trí dùng bởi employees và job_postings. Là bảng riêng với tbl_position; không có FK nối hai bảng này.",
+    "source": "Metadata public.positions trong schema.json. Entity Position hiện tại ánh xạ tbl_position; không tìm thấy SQL native truy cập positions.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "code": "Mã chức danh/vị trí; UNIQUE trên toàn bảng, kể cả bản ghi có deleted=true.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột.",
+      "description": "Mô tả chức danh/vị trí.",
+      "name": "Tên chức danh/vị trí.",
+      "updated_at": "Thời điểm cập nhật gần nhất."
+    },
+    "enumNotes": []
+  },
+  "project_members": {
+    "label": "Thành viên dự án",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Dự án và công việc",
+    "purpose": "Bảng liên kết projects và employees theo quan hệ nhiều–nhiều, có vai trò và thời gian tham gia. PK là id; UNIQUE(project_id, employee_id) ngăn lặp cùng cặp dự án/nhân viên kể cả khi active=false. Mô hình riêng với tbl_project_staff.",
+    "source": "Metadata public.project_members trong schema.json. Không tìm thấy entity JPA hoặc SQL native truy cập bảng này trong backend hiện tại; ý nghĩa suy luận từ cấu trúc.",
+    "columns": {
+      "id": "Khóa chính riêng của bản ghi tham gia, số nguyên tự sinh IDENTITY BY DEFAULT; không phải PK ghép hai FK.",
+      "active": "Cờ thành viên đang hoạt động trong dự án.",
+      "joined_at": "Thời điểm tham gia dự án.",
+      "left_at": "Thời điểm rời dự án.",
+      "role": "Vai trò thành viên trong dự án, bị giới hạn bởi CHECK.",
+      "employee_id": "FK tới employees.id: nhân viên tham gia; kết hợp project_id tạo khóa duy nhất.",
+      "project_id": "FK tới projects.id: dự án; kết hợp employee_id tạo khóa duy nhất."
+    },
+    "enumNotes": ["DB CHECK role: PROJECT_MANAGER (quản lý dự án), MEMBER (thành viên). Vai trò này khác roles của tài khoản."]
+  },
+  "projects": {
+    "label": "Dự án",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Dự án và công việc",
+    "purpose": "Suy luận từ cấu trúc: thông tin dự án, trạng thái, lịch thực hiện và người quản lý. Liên quan project_members và tasks. Là bảng riêng với tbl_project.",
+    "source": "Metadata public.projects trong schema.json. Entity Project hiện tại ánh xạ tbl_project; không tìm thấy SQL native truy cập projects.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "code": "Mã dự án duy nhất.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột.",
+      "description": "Mô tả dự án.",
+      "end_date": "Ngày kết thúc dự án; chưa xác minh là kế hoạch hay thực tế.",
+      "name": "Tên dự án.",
+      "start_date": "Ngày bắt đầu dự án.",
+      "status": "Trạng thái dự án, bị giới hạn bởi CHECK.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "manager_employee_id": "FK tới employees.id: nhân viên quản lý dự án; DB không bắt buộc người này đồng thời có bản ghi project_members."
+    },
+    "enumNotes": ["DB CHECK status: PLANNING (lập kế hoạch), IN_PROGRESS (đang thực hiện), ON_HOLD (tạm dừng), COMPLETED (hoàn thành), CANCELLED (đã hủy)."]
+  },
+  "roles": {
+    "label": "Vai trò tài khoản",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tài khoản và phân quyền",
+    "purpose": "Suy luận từ cấu trúc: danh mục vai trò tham chiếu trực tiếp từ users.role_id, tức mỗi user có tối đa một role theo mô hình này. Khác tbl_role/tbl_user_role của mô hình hiện tại.",
+    "source": "Metadata public.roles trong schema.json. Entity Role hiện tại ánh xạ tbl_role; không tìm thấy SQL native truy cập roles.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "description": "Mô tả vai trò/quyền hạn.",
+      "name": "Tên vai trò duy nhất; DB không có CHECK giới hạn danh sách tên vai trò."
+    },
+    "enumNotes": []
+  },
+  "task_attachments": {
+    "label": "Tệp đính kèm công việc",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Dự án và công việc",
+    "purpose": "Suy luận từ cấu trúc: metadata tệp đính kèm công việc cùng tài khoản tải lên. Không có FK nối trực tiếp uploaded_files; DB không chứa cột dữ liệu nhị phân của tệp trong bảng này. Là bảng riêng với tbl_task_attachment.",
+    "source": "Metadata public.task_attachments trong schema.json. Entity TaskAttachment hiện tại ánh xạ tbl_task_attachment; không tìm thấy SQL native truy cập task_attachments.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "deleted": "Cờ đánh dấu xóa mềm metadata tệp theo tên cột; không chứng minh tệp vật lý đã bị xóa.",
+      "file_name": "Tên tệp đính kèm.",
+      "file_url": "Đường dẫn truy cập tệp; DB không quy định nơi lưu tệp vật lý.",
+      "uploaded_at": "Thời điểm tải tệp lên.",
+      "task_id": "FK tới tasks.id: công việc chứa tệp đính kèm.",
+      "uploaded_by": "FK tới users.id: tài khoản tải tệp lên."
+    },
+    "enumNotes": []
+  },
+  "task_histories": {
+    "label": "Lịch sử công việc",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Dự án và công việc",
+    "purpose": "Suy luận từ cấu trúc: nhật ký thao tác hoặc đổi trạng thái của công việc, ghi người thực hiện và thời điểm. Là bảng riêng với tbl_task_history.",
+    "source": "Metadata public.task_histories trong schema.json. Entity TaskHistory hiện tại ánh xạ tbl_task_history; không tìm thấy SQL native truy cập task_histories.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "action": "Tên/loại hành động trên công việc; snapshot không có CHECK quy định danh sách.",
+      "created_at": "Thời điểm ghi lịch sử.",
+      "new_status": "Trạng thái mới của công việc sau thay đổi, bị giới hạn bởi CHECK.",
+      "note": "Ghi chú của lần thay đổi.",
+      "old_status": "Trạng thái trước thay đổi, bị giới hạn bởi CHECK.",
+      "changed_by": "FK tới users.id: tài khoản thực hiện thay đổi.",
+      "task_id": "FK tới tasks.id: công việc được ghi lịch sử."
+    },
+    "enumNotes": ["DB CHECK old_status và new_status: TODO (chưa làm), IN_PROGRESS (đang làm), REVIEW (chờ xem xét), DONE (hoàn thành). CHECK không tự bảo đảm trạng thái cũ khớp bản ghi trước hoặc buộc một thứ tự chuyển trạng thái."]
+  },
+  "tasks": {
+    "label": "Công việc",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Dự án và công việc",
+    "purpose": "Suy luận từ cấu trúc: công việc thuộc dự án, có nhân viên phụ trách, mức ưu tiên, thời hạn và trạng thái. Là bảng riêng với tbl_task; bảng này dùng trạng thái chuỗi cố định.",
+    "source": "Metadata public.tasks trong schema.json. Entity Task hiện tại ánh xạ tbl_task; không tìm thấy SQL native truy cập tasks.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "code": "Mã công việc duy nhất.",
+      "completed_at": "Thời điểm hoàn thành công việc.",
+      "created_at": "Thời điểm tạo bản ghi.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột.",
+      "description": "Mô tả nội dung công việc.",
+      "due_date": "Hạn hoàn thành công việc.",
+      "priority": "Mức ưu tiên, bị giới hạn bởi CHECK.",
+      "start_date": "Ngày bắt đầu công việc.",
+      "status": "Trạng thái công việc, bị giới hạn bởi CHECK.",
+      "title": "Tiêu đề công việc.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "assignee_employee_id": "FK tới employees.id: nhân viên được giao; DB không bắt buộc người này là thành viên project_members của dự án.",
+      "project_id": "FK tới projects.id: dự án chứa công việc."
+    },
+    "enumNotes": ["DB CHECK priority: LOW (thấp), MEDIUM (trung bình), HIGH (cao), URGENT (khẩn cấp).", "DB CHECK status: TODO (chưa làm), IN_PROGRESS (đang làm), REVIEW (chờ xem xét), DONE (hoàn thành)."]
+  },
+  "uploaded_files": {
+    "label": "Metadata tệp tải lên",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tệp",
+    "purpose": "Suy luận từ cấu trúc: thông tin tệp tải lên gắn với tài khoản sở hữu và có thể gắn công việc. Không có cột dữ liệu nhị phân hoặc đường dẫn riêng; không thể kết luận vị trí tệp vật lý từ schema. Không có FK trực tiếp tới task_attachments.",
+    "source": "Metadata public.uploaded_files trong schema.json. Không tìm thấy entity JPA hoặc SQL native truy cập bảng này trong backend hiện tại; ý nghĩa suy luận từ cấu trúc.",
+    "columns": {
+      "id": "Khóa chính chuỗi tối đa 36 ký tự; không phải kiểu UUID PostgreSQL và không có DEFAULT/IDENTITY tự sinh trong DB.",
+      "content_type": "MIME type của tệp, ví dụ loại ảnh/tài liệu; chưa xác minh danh sách cho phép.",
+      "file_name": "Tên tệp tải lên.",
+      "purpose": "Mục đích/nhóm sử dụng tệp; DB không có CHECK giới hạn danh sách giá trị.",
+      "size": "Kích thước tệp; đơn vị có khả năng là byte nhưng chưa xác minh bằng mã nguồn.",
+      "uploaded_at": "Thời điểm tải tệp lên.",
+      "owner_id": "FK bắt buộc tới users.id: tài khoản sở hữu tệp.",
+      "task_id": "FK tùy chọn tới tasks.id: công việc liên quan đến tệp."
+    },
+    "enumNotes": []
+  },
+  "users": {
+    "label": "Tài khoản người dùng",
+    "group": "Nhóm bảng không có tiền tố tbl_ — Tài khoản và phân quyền",
+    "purpose": "Suy luận từ cấu trúc: tài khoản đăng nhập với tên đăng nhập/email duy nhất, trạng thái bật/tắt và vai trò đơn. Là bảng riêng với tbl_user; không có FK nối trực tiếp hai nhóm tài khoản.",
+    "source": "Metadata public.users trong schema.json. Entity User hiện tại ánh xạ tbl_user; không tìm thấy SQL native truy cập users. Chưa xác minh thuật toán lưu mật khẩu của bảng này.",
+    "columns": {
+      "id": "Khóa chính số nguyên, tự sinh theo IDENTITY BY DEFAULT.",
+      "created_at": "Thời điểm tạo tài khoản.",
+      "deleted": "Cờ đánh dấu xóa mềm theo tên cột.",
+      "deleted_at": "Thời điểm đánh dấu xóa tài khoản.",
+      "email": "Email tài khoản, có UNIQUE; cột cho phép NULL.",
+      "enabled": "Cờ tài khoản được phép hoạt động theo tên cột; cơ chế xác thực của bảng này chưa được xác minh.",
+      "full_name": "Họ tên hiển thị của tài khoản.",
+      "password": "Giá trị mật khẩu lưu trữ; schema không xác định thuật toán băm hay cơ chế mã hóa.",
+      "updated_at": "Thời điểm cập nhật gần nhất.",
+      "username": "Tên đăng nhập duy nhất.",
+      "role_id": "FK tùy chọn tới roles.id: vai trò của tài khoản; một user có tối đa một role theo cấu trúc bảng này."
+    },
+    "enumNotes": []
+  }
+}
