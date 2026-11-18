@@ -1,0 +1,70 @@
+package hrm.model;
+
+import hrm.enums.LeaveApprovalStatus;
+import hrm.enums.LeaveType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "tbl_leave_request")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class LeaveRequest extends BaseModel {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_staff_id", nullable = false)
+    private Staff requestStaff;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approval_staff_id")
+    private Staff approvalStaff;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "leave_type", nullable = false)
+    private LeaveType leaveType;
+
+    @Column(name = "from_date", nullable = false)
+    private LocalDate fromDate;
+
+    @Column(name = "to_date", nullable = false)
+    private LocalDate toDate;
+
+    @Column(name = "request_date", nullable = false)
+    private LocalDate requestDate;
+
+    @Column(name = "request_reason")
+    private String requestReason;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", nullable = false)
+    private LeaveApprovalStatus approvalStatus = LeaveApprovalStatus.PENDING;
+
+    @Column(name = "total_days", nullable = false)
+    private Double totalDays = 0.0;
+
+    @Column(name = "half_day_leave")
+    private Boolean halfDayLeave = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shift_work_id")
+    private ShiftWork shiftWork;
+
+    @Column(name = "reject_reason")
+    private String rejectReason;
+
+    @ElementCollection
+    @CollectionTable(name = "tbl_leave_makeup_date", joinColumns = @JoinColumn(name = "leave_request_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"leave_request_id", "makeup_date"}))
+    @Column(name = "makeup_date", nullable = false)
+    @OrderBy
+    private List<LocalDate> makeupDates = new ArrayList<>();
+}

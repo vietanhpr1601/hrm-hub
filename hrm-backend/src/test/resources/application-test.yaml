@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: ${HRM_TEST_DB_URL:jdbc:h2:mem:hrm-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,MONTH}
+    driver-class-name: ${HRM_TEST_DB_DRIVER:org.h2.Driver}
+    username: ${HRM_TEST_DB_USERNAME:sa}
+    password: ${HRM_TEST_DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${HRM_TEST_DB_DIALECT:org.hibernate.dialect.H2Dialect}
+        format_sql: false
+        hbm2ddl:
+          halt_on_error: true
+
+app:
+  admin:
+    username: integration-admin
+    password: IntegrationTestPassword123!
+    email: integration@example.test
+
+jwt:
+  secret: integration-tests-only-signing-key-at-least-32-bytes-long
+
+logging:
+  level:
+    org.hibernate: WARN
